@@ -8,6 +8,13 @@ class Hashtags(models.Model):
     def __str__(self) -> str:
         return self.hashtag
 
+class Category(models.Model):
+    name = models.CharField(max_length=55)
+
+    def __str__(self) -> str:
+        return self.name
+    
+
 class Vacancy(models.Model):
     RATES = (
         (0, "0.25"),
@@ -25,9 +32,23 @@ class Vacancy(models.Model):
     text = models.TextField()
     working_days = models.CharField(max_length=100, verbose_name='vacancy_working_days')
     worker_level = models.IntegerField(choices=WORKER_LEVEL, default=2)
-    hashtags = models.ManyToManyField(Hashtags)
     created_date = models.DateTimeField(auto_now_add=True)
     city = models.CharField(max_length=40)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    worker_experience = models.IntegerField()
+
+
+    def __str__(self) -> str:
+        return self.title 
+
+
+class Hashtags(models.Model):
+    hashtag = models.CharField(max_length=40)
+    vacancy_hashtags = models.ForeignKey(Vacancy, on_delete=models.CASCADE, related_name='vacancy_hashtags')
+    def __str__(self) -> str:
+        return self.hashtag
+
+
 
 class Requirements(models.Model):
     text = models.CharField(max_length=100)
@@ -64,7 +85,7 @@ class Apply(models.Model):
     surname = models.CharField(max_length=30)
     email = models.EmailField()
     phone = models.IntegerField(help_text='Contact phone number')
-
+    cv = models.FileField(upload_to='media/', null=True)
     def __str__(self):
         return self.name
 

@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from main.permissions import IsAdminOrReadOnly
+from rest_framework import viewsets
 
 
 class SliderView(generics.ListCreateAPIView, generics.DestroyAPIView):
@@ -41,13 +42,12 @@ class CardsView(generics.RetrieveDestroyAPIView, generics.CreateAPIView):
         serialializer = self.serializer_class(card).data
         return Response(serialializer)
 
-    
-    def create(self, request):
-        serializer = CardsSerializer(data=request.data)
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
-        return Response("Error")
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
         
 
     def destroy(self, request, pk):
@@ -55,6 +55,26 @@ class CardsView(generics.RetrieveDestroyAPIView, generics.CreateAPIView):
         card.delete()
         return Response({"status": True, "message" : "Deleted"})    
 
+
+class SingleCart(generics.CreateAPIView, generics.DestroyAPIView):
+    queryset = Cards.objects.all()
+    serializer_class = CardsSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+
+    def create(self, request):
+        serializer = CardsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response({"status" : False, "message" : "Try again"})  
+    
+
+    def destroy(self, request, pk):
+        card = self.queryset.get(id=pk)
+        card.delete()
+        return Response({"status": True, "message" : "Deleted"})   
+    
 
 
 class FooterView(generics.CreateAPIView):
@@ -67,3 +87,4 @@ class FooterView(generics.CreateAPIView):
             serializer.save()
             return Response(serializer.data)
         return Response({"status" : False, "message" : "Try again"})    
+    

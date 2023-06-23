@@ -11,10 +11,9 @@ class SliderSerializer(serializers.ModelSerializer):
 
 
 class CardsSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = Cards
-        fields = ['id', 'title', 'icon', 'card_title']
+        fields = ['id', 'title', 'card_title']
         read_only_fields = ('card_title', )
 
 
@@ -24,20 +23,20 @@ class CardsSerializer(serializers.ModelSerializer):
     
 
 class Card_TitlesSerializer(serializers.ModelSerializer):
-    cards_title = CardsSerializer(many=True)
+    card_title = CardsSerializer(many=True)
     class Meta:
         model = Card_Titles
-        fields = ['id', 'title', 'title2', 'cards_title']
+        fields = "__all__"
 
 
     def create(self, validated_data):
-        cards_title = validated_data.pop('cards_title')
-        print(cards_title)
-        card_title = super().create(**validated_data)
-        print(card_title)
-        for cards in cards_title:
-            Cards.objects.create(cards, card_title=card_title)
-        return card_title
+        card_title = validated_data.pop('card_title')
+        card_instance = Card_Titles.objects.create(**validated_data)
+        for card in card_title:
+            Cards.objects.create(card_title=card_instance, **card)
+        return card_instance
+
+
 
 
 class FooterSerializer(serializers.ModelSerializer):
