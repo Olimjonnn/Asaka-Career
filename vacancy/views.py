@@ -12,20 +12,21 @@ class HashtagsView(generics.CreateAPIView):
     queryset = Hashtags.objects.all()
     serializer_class = HashtagsSerializer
     permission_classes = [permissions.IsAuthenticated]
-
+    # Creating function for Hashtags model!
 
 
 class RequirementsView(generics.CreateAPIView):
     queryset = Requirements.objects.all()
     serializer_class = RequirementsSerializer
     permission_classes = [permissions.IsAuthenticated]
-
+    # Creating function for Requirements model!
 
 
 class ResponsibilitiesView(generics.CreateAPIView):
     queryset = Responsibilities.objects.all()
     serializer_class = ResponsibilitiesSerializer
     permission_classes = [permissions.IsAuthenticated]
+    # Creating function for Responsibilities model!
 
 
 
@@ -33,26 +34,28 @@ class ConditionsView(generics.CreateAPIView):
     queryset = Conditions.objects.all()
     serializer_class = HashtagsSerializer
     permission_classes = [permissions.IsAuthenticated]
+    # Creating function for Conditions model!
 
 
 
-class LocationView(generics.CreateAPIView):
+class LocationView(generics.ListCreateAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    # Creating and Geting function for Location model!
 
 
-class ApplyView(generics.CreateAPIView):
+class ApplyView(generics.ListCreateAPIView):
     queryset = Apply.objects.all()
     serializer_class = ApplySerializer
-    
+    # Applying function for Apply model!
 
 class VacancyView(generics.ListCreateAPIView):
     queryset = Vacancy.objects.all()
     serializer_class = VacancyDetailSerializers
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-
+    # Function: Creating with nested serializer for Vacancy model!
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
@@ -60,6 +63,8 @@ class VacancyView(generics.ListCreateAPIView):
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
     
+
+    # Function: Filtering by few fields for Vacancy model!
     def get_queryset(self):
         vacancy = super().get_queryset()
         filter_field = self.request.GET.get("filter_field")
@@ -69,7 +74,8 @@ class VacancyView(generics.ListCreateAPIView):
         queryset = vacancy.filter(filtering)
         print(queryset)
         return queryset
-        
+    
+    # Function: Getting by few fields for Vacancy model!   
     def list(self, request, *args, **kwargs):
             queryset = self.get_queryset()
             if queryset:
@@ -84,6 +90,7 @@ class RelatedVacancy(generics.RetrieveAPIView):
     serializer_class = VacancyDetailSerializers
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    # Function: Getting Related objects by category, for Vacancy model!   
     def retrieve(self, request, pk):
         vacancy = Vacancy.objects.get(id=pk)
         ser_vac = self.get_serializer(vacancy).data
@@ -96,6 +103,7 @@ class ApplyingView(generics.ListCreateAPIView):
     queryset = Apply.objects.all()
     serializer_class = ApplySerializer
 
+    # Sending applyment function for Apply model!
     def create(self, request, pk):
         vacancy_id = Vacancy.objects.get(id=pk)
         if vacancy_id:

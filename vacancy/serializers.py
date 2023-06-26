@@ -83,6 +83,8 @@ class VacancyDetailSerializers(serializers.ModelSerializer):
             'vacancy_location',
             'vacancy_hashtags'
         ]
+        # depth = 1
+    # Function: Creating with nested serializer for Vacancy model!
     def create(self, validated_data):
         vacancy_requirements = validated_data.pop('vacancy_requirements')
         vacancy_responsibilities = validated_data.pop('vacancy_responsibilities')

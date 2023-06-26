@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from main.models import Slider, Card_Titles, Cards, Footer
+from main.models import Slider, CardTitles, Cards, Footer
 
 class SliderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,16 +22,16 @@ class CardsSerializer(serializers.ModelSerializer):
 
     
 
-class Card_TitlesSerializer(serializers.ModelSerializer):
+class CardTitlesSerializer(serializers.ModelSerializer):
     card_title = CardsSerializer(many=True)
     class Meta:
-        model = Card_Titles
+        model = CardTitles
         fields = "__all__"
 
 
     def create(self, validated_data):
         card_title = validated_data.pop('card_title')
-        card_instance = Card_Titles.objects.create(**validated_data)
+        card_instance = CardTitles.objects.create(**validated_data)
         for card in card_title:
             Cards.objects.create(card_title=card_instance, **card)
         return card_instance

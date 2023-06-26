@@ -33,12 +33,16 @@ class Success_storiesView(generics.ListAPIView):
     queryset = Success_stories.objects.all().order_by('-id')[0:6]
     serializer_class = Succes_storiesSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
-
+    
+    
+    # Get function Succes Stories model!
     def list(self, request):
         succ = Success_stories.objects.all()
         ser = Succes_storiesSerializer(succ, many=True)
         return Response(ser.data)
     
+    
+    # Create function for Succes Stories model!
     def create(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():

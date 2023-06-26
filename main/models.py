@@ -11,7 +11,7 @@ class Slider(models.Model):
         return self.title
 
 
-class Card_Titles(models.Model):
+class CardTitles(models.Model):
     title = models.CharField(max_length=55)
     title2 = models.CharField(max_length=255, null=True, blank=True, verbose_name='card_title2')
     
@@ -23,7 +23,7 @@ class Card_Titles(models.Model):
 class Cards(models.Model):
     title = models.CharField(max_length=32, verbose_name="cards_title")
     icon = models.ImageField(upload_to='media/', blank=True, null=True)
-    card_title = models.ForeignKey(Card_Titles, on_delete=models.CASCADE, related_name='card_title')
+    card_title = models.ForeignKey(CardTitles, on_delete=models.CASCADE, related_name='card_title')
    
     def __str__(self) -> str:
         return self.title

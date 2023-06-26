@@ -16,7 +16,7 @@ class BlogDetailView(generics.ListCreateAPIView):
     serializer_class = BlogDetailSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-
+    # Get function for Blog model!
     def list(self, request, pk):
         queryset = Blog.objects.all().filter(id=pk) 
         for i in queryset:
@@ -24,7 +24,8 @@ class BlogDetailView(generics.ListCreateAPIView):
             i.save()
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
-
+    
+    # Create function for Blog model!
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
