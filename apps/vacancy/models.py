@@ -1,12 +1,14 @@
 from django.db import models
 from phone_field import PhoneField
+from django.contrib.auth.models import User
+from users.models import User
+from apps.vacancy.constants import JOB_TYPE, CANDIDATE_LEVEL
 
-
-class Hashtags(models.Model):
-    hashtag = models.CharField(max_length=40)
+class Tag(models.Model):
+    name = models.CharField(max_length=100)
 
     def __str__(self) -> str:
-        return self.hashtag
+        return self.name
 
 class Category(models.Model):
     name = models.CharField(max_length=55)
@@ -16,37 +18,28 @@ class Category(models.Model):
     
 
 class Vacancy(models.Model):
-    RATES = (
-        (0, "0.25"),
-        (1, "Half time"),
-        (2, "0.75"),
-        (3, "Full time"),
-    )
-    WORKER_LEVEL = (
-        (0, 'Junior'),
-        (1, 'Middle'),
-        (2, 'Senior')
-    )
+
     title = models.CharField(max_length=255, verbose_name='vacancy_title')
-    rates = models.IntegerField(choices=RATES, default=3)
+    job_type = models.CharField(max_length=20, choices=JOB_TYPE.CHOICES)
+    candidate_level = models.CharField(max_length=50, choices=CANDIDATE_LEVEL.CHOICES)
     text = models.TextField()
     working_days = models.CharField(max_length=100, verbose_name='vacancy_working_days')
-    worker_level = models.IntegerField(choices=WORKER_LEVEL, default=2)
-    created_date = models.DateTimeField(auto_now_add=True)
+    added_date = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     city = models.CharField(max_length=40)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     worker_experience = models.IntegerField()
+    added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='added_by')
+    modified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True,
+                                    related_name='modified_by')
 
+    tags = models.ManyToManyField(Tag, related_name='vacancies', blank=True)
 
     def __str__(self) -> str:
         return self.title 
 
 
-class Hashtags(models.Model):
-    hashtag = models.CharField(max_length=40)
-    vacancy_hashtags = models.ForeignKey(Vacancy, on_delete=models.CASCADE, related_name='vacancy_hashtags')
-    def __str__(self) -> str:
-        return self.hashtag
+
 
 
 

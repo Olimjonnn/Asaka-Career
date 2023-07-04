@@ -1,12 +1,7 @@
 from rest_framework import serializers
-from apps.vacancy.models import Hashtags,Apply, Vacancy, Requirements, Responsibilities, Conditions, Location, Category
+from apps.vacancy.models import Apply, Vacancy, Requirements, Responsibilities, Conditions, Location, Category
 
 
-class HashtagsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Hashtags
-        fields = '__all__'
-        read_only_fields = ('vacancy_hashtags', )
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -41,16 +36,16 @@ class LocationSerializer(serializers.ModelSerializer):
         read_only_fields = ('vacancy', )
 
 class VacancySerializer(serializers.ModelSerializer):
-    vacancy_hashtags = HashtagsSerializer(many=True, read_only=True)
+
     class Meta:
         model = Vacancy
         fields = [
             'id',
             'title',
-            'rates',
             'city',
             'text',
-            'vacancy_hashtags'
+            'tags'
+
         ]
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -64,24 +59,25 @@ class VacancyDetailSerializers(serializers.ModelSerializer):
     vacancy_responsibilities = ResponsibilitiesSerializer(many=True)
     vacancy_conditions = ConditionsSerializer(many=True)
     vacancy_location = LocationSerializer(many=True)
-    vacancy_hashtags = HashtagsSerializer(many=True)
+
     class Meta:
         model = Vacancy
         fields = [
             'id',
             'title',
             'text',
-            'rates',
             'city',
             'category',
             'working_days',
-            'worker_level',
             'worker_experience',
             'vacancy_requirements',
             'vacancy_responsibilities',
             'vacancy_conditions',
             'vacancy_location',
-            'vacancy_hashtags'
+            'job_type',
+            'candidate_level',
+            'tags'
+
         ]
         # depth = 1
     # Function: Creating with nested serializer for Vacancy model!
@@ -90,7 +86,7 @@ class VacancyDetailSerializers(serializers.ModelSerializer):
         vacancy_responsibilities = validated_data.pop('vacancy_responsibilities')
         vacancy_conditions = validated_data.pop('vacancy_conditions')
         vacancy_location = validated_data.pop('vacancy_location')
-        vacancy_hashtags = validated_data.pop('vacancy_hashtags')
+
         vacancy_instance = Vacancy.objects.create(**validated_data)
 
         for requirement in vacancy_requirements:
@@ -105,9 +101,6 @@ class VacancyDetailSerializers(serializers.ModelSerializer):
         for location in vacancy_location:
             Location.objects.create(vacancy=vacancy_instance, **location)  
 
-        for hashtag in vacancy_hashtags:
-            Hashtags.objects.create(vacancy_hashtags=vacancy_instance, **hashtag) 
-        
         return vacancy_instance
 
 class ApplySerializer(serializers.ModelSerializer):

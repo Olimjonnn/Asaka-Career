@@ -36,8 +36,34 @@ class CardTitlesSerializer(serializers.ModelSerializer):
             Cards.objects.create(card_title=card_instance, **card)
         return card_instance
 
+    def update(self, instance, validated_data):
+        card_title_data = validated_data.pop('card_title')
+        instance.title = validated_data.get("title", instance.title)
+        instance.save()
+        for i in card_title_data:
+            card = Cards.objects.get(pk=i['id'])
+            card.title = i.get('title', card.title)
+            card.save()
 
+        # keep_cards = []
+        # # existing_ids = [c.id for c in instance.card_title]
+        # for i in card_title:
+        #     if "id" in i.keys():
+        #         if Cards.objects.filter(id=i['id']).exists():
+        #             c = Cards.objects.get(id=i['id'])
+        #             c.title = i.get('title', c.title)
+        #             c.save()
+        #             keep_cards.append(c)
+        #         else:
+        #             continue
+        #     else:
+        #         c = Cards.objects.create(**i, card_title=instance)
+        #         keep_cards.append(c)
 
+        # # for i in instance.card_title:
+        # #     if i.id not in keep_cards:
+        # #         i.delete()
+        return instance
 
 class FooterSerializer(serializers.ModelSerializer):
     class Meta:

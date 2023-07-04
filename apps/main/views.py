@@ -2,7 +2,7 @@ from django.shortcuts import render
 from apps.main.serializers import SliderSerializer, CardTitlesSerializer, CardsSerializer, FooterSerializer
 from apps.main.models import Slider, CardTitles, Cards, Footer
 from rest_framework.response import Response
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from apps.main.permissions import IsAdminOrReadOnly
 from rest_framework import viewsets
@@ -33,7 +33,7 @@ class SliderView(generics.ListCreateAPIView, generics.DestroyAPIView):
 
 
 
-class CardsView(generics.RetrieveDestroyAPIView, generics.CreateAPIView):
+class CardsView(generics.RetrieveDestroyAPIView, generics.CreateAPIView, generics.UpdateAPIView):
     queryset = CardTitles.objects.all()
     serializer_class = CardTitlesSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
@@ -57,6 +57,15 @@ class CardsView(generics.RetrieveDestroyAPIView, generics.CreateAPIView):
         card = self.queryset.get(id=pk)
         card.delete()
         return Response({"status": True, "message" : "Deleted"})    
+
+    def update(self, request, *args, **kwargs):
+        object = self.get_object()
+        serializer = self.serializer_class(object, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'success': True, 'data': serializer.data}, status=status.HTTP_200_OK)
+        return Response({'success': False, 'message': 'Credentials is invalid'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class SingleCart(generics.CreateAPIView, generics.DestroyAPIView):

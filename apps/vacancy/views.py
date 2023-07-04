@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from apps.vacancy.models import Hashtags,Apply, Vacancy, Requirements, Responsibilities, Conditions, Location
-from apps.vacancy.serializers import VacancyDetailSerializers, HashtagsSerializer, ApplySerializer, VacancySerializer, RequirementsSerializer, ResponsibilitiesSerializer, ConditionsSerializer, LocationSerializer
+from apps.vacancy.models import Apply, Vacancy, Requirements, Responsibilities, Conditions, Location
+from apps.vacancy.serializers import VacancyDetailSerializers,  ApplySerializer, VacancySerializer, RequirementsSerializer, ResponsibilitiesSerializer, ConditionsSerializer, LocationSerializer
 from rest_framework import generics, status
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -8,11 +8,6 @@ from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-class HashtagsView(generics.CreateAPIView):
-    queryset = Hashtags.objects.all()
-    serializer_class = HashtagsSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    # Creating function for Hashtags model!
 
 
 class RequirementsView(generics.CreateAPIView):
@@ -32,7 +27,7 @@ class ResponsibilitiesView(generics.CreateAPIView):
 
 class ConditionsView(generics.CreateAPIView):
     queryset = Conditions.objects.all()
-    serializer_class = HashtagsSerializer
+    serializer_class = ConditionsSerializer
     permission_classes = [permissions.IsAuthenticated]
     # Creating function for Conditions model!
 
@@ -50,18 +45,28 @@ class ApplyView(generics.ListCreateAPIView):
     serializer_class = ApplySerializer
     # Applying function for Apply model!
 
-class VacancyView(generics.ListCreateAPIView):
+class VacancyView(generics.ListCreateAPIView, generics.UpdateAPIView):
     queryset = Vacancy.objects.all()
     serializer_class = VacancyDetailSerializers
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     # Function: Creating with nested serializer for Vacancy model!
-    def create(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
+    def create(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            request.data['added_by'] = request.user.id
+            request.data['modified_by'] = request.user.id
+            return super().create(request, *args, **kwargs)
+
+        return Response({'detail': 'You do not have permission to perform this action.'},
+                        status=status.HTTP_403_FORBIDDEN)
+
+    def update(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            request.data['modified_by'] = request.user.id
+            return super().update(request, *args, **kwargs)
+        return Response({'detail': 'You do not have permission to perform this action.'},
+                        status=status.HTTP_403_FORBIDDEN)
+
     
 
     # Function: Filtering by few fields for Vacancy model!
