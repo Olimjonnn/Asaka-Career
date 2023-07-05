@@ -45,14 +45,13 @@ class CardTitlesSerializer(serializers.ModelSerializer):
         instance.save()
         
         for i in card_title_data:
-            print(list(i.keys()))
             if "id" in i.keys():
                 card = cards.pop(0)
                 card.title = i.get('title', card.title)
                 card.save()
             else:
-                c = Cards.objects.update_or_create(**i, card_title=instance)
-                
+                c = Cards.objects.create(**i, card_title=instance)
+                c.save()
         return instance
 
 class FooterSerializer(serializers.ModelSerializer):
