@@ -11,10 +11,11 @@ class SliderSerializer(serializers.ModelSerializer):
 
 
 class CardsSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     class Meta:
         model = Cards
         fields = ['id', 'title', 'card_title']
-        read_only_fields = ('card_title', )
+        read_only_fields = ('card_title', 'id')
 
 
     def create(self, validated_data):
@@ -38,31 +39,20 @@ class CardTitlesSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         card_title_data = validated_data.pop('card_title')
+        cards = (instance.card_title).all()
+        cards = list(cards)
         instance.title = validated_data.get("title", instance.title)
         instance.save()
+        
         for i in card_title_data:
-            card = Cards.objects.get(pk=i['id'])
-            card.title = i.get('title', card.title)
-            card.save()
-
-        # keep_cards = []
-        # # existing_ids = [c.id for c in instance.card_title]
-        # for i in card_title:
-        #     if "id" in i.keys():
-        #         if Cards.objects.filter(id=i['id']).exists():
-        #             c = Cards.objects.get(id=i['id'])
-        #             c.title = i.get('title', c.title)
-        #             c.save()
-        #             keep_cards.append(c)
-        #         else:
-        #             continue
-        #     else:
-        #         c = Cards.objects.create(**i, card_title=instance)
-        #         keep_cards.append(c)
-
-        # # for i in instance.card_title:
-        # #     if i.id not in keep_cards:
-        # #         i.delete()
+            print(list(i.keys()))
+            if "id" in i.keys():
+                card = cards.pop(0)
+                card.title = i.get('title', card.title)
+                card.save()
+            else:
+                c = Cards.objects.update_or_create(**i, card_title=instance)
+                
         return instance
 
 class FooterSerializer(serializers.ModelSerializer):
