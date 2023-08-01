@@ -5,6 +5,14 @@ from rest_framework import generics
 from apps.blog.serializers import BlogSerializer, BlogDetailSerializer
 from apps.blog.models import Blog
 
+from django.http import JsonResponse
+from rest_framework.decorators import api_view, permission_classes
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+
+from apps.blog.scrape import scrape_news
+
 
 class BlogView(generics.ListAPIView):
     queryset = Blog.objects.all()
@@ -35,7 +43,26 @@ class BlogDetailView(generics.ListCreateAPIView):
     
 
 
-class RecomendedBlogs(generics.ListAPIView):
-    queryset = Blog.objects.all().order_by('-id')[0:6]
-    serializer_class = BlogSerializer
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def capturing_screenshot(request):
+    url = request.data.get('url')
 
+    options = webdriver.ChromeOptions()
+    service = Service(executable_path='./chromedriver.exe')
+    options.add_argument('--headless') 
+    driver = webdriver.Chrome(service=service, options=options)
+
+    try:
+        driver.get(url)
+        screenshot_path = '/path/to/save/screenshot.png'
+        driver.save_screenshot(screenshot_path)
+        driver.quit()
+        return JsonResponse({'message': 'Screenshot captured successfully.', 'screenshot_path': screenshot_path})
+    except Exception as e:
+        return JsonResponse({'error': str(e)})
+
+    
+def get_news(request):
+    news_data = scrape_news()
+    return JsonResponse(news_data, safe=False)

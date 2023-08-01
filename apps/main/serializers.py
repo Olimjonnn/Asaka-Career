@@ -52,6 +52,15 @@ class CardTitlesSerializer(serializers.ModelSerializer):
             else:
                 c = Cards.objects.create(**i, card_title=instance)
                 c.save()
+
+        if "card_title" in validated_data:
+            cards_title_data = validated_data.pop('card_title')
+            for card_title_data in cards_title_data:
+                if "destroy" in card_title_data and card_title_data['destroy']:
+                    card_instance = instance.card_title.get(id=card_title_data['id'])
+                    card_instance.delete()
+
+            
         return instance
 
 class FooterSerializer(serializers.ModelSerializer):

@@ -66,6 +66,14 @@ class CardsView(generics.RetrieveDestroyAPIView, generics.CreateAPIView, generic
             return Response({'success': True, 'data': serializer.data}, status=status.HTTP_200_OK)
         return Response({'success': False, 'message': 'Credentials is invalid'}, status=status.HTTP_400_BAD_REQUEST)
 
+# class CardsDelete(viewsets.ModelViewSet):
+#     queryset = CardTitles.objects.all()
+#     serializer_class = CardTitlesSerializer
+#     def destroy(self, request, pk):
+#         card_titles = CardTitles.objects.get(id=pk)
+#         cards = Cards.objects.filter(card_title__id=card_titles.id)
+
+
 
 
 class SingleCart(generics.CreateAPIView, generics.DestroyAPIView):
